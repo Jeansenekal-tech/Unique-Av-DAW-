@@ -120,6 +120,14 @@ jobs:
           pattern: Unique-AV-DAW-mac-*
           path: dist
           merge-multiple: true
+      - name: Refuse to overwrite an existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${RELEASE_VERSION#v}" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release v${RELEASE_VERSION#v} already exists. Run the workflow again with a higher version number."
+            exit 1
+          fi
       - name: Release notes and tag
         id: meta
         env:
