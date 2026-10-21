@@ -1,0 +1,89 @@
+{
+  "name": "unique-av-daw",
+  "productName": "Unique AV DAW",
+  "version": "1.0.0",
+  "description": "Unique AV DAW – live multitrack recorder with virtual soundcheck, mixer and broadcast output for macOS (Core Audio, Dante, Waves SoundGrid/QRec, MADI, USB).",
+  "main": "main.js",
+  "author": "Unique AV",
+  "license": "UNLICENSED",
+  "private": true,
+  "homepage": "https://github.com/Jeansenekal-tech/Unique-Av-DAW-",
+  "gypfile": true,
+  "scripts": {
+    "install": "node-gyp rebuild",
+    "build:native": "node-gyp rebuild",
+    "start": "electron .",
+    "start:null": "UAVDAW_NULL_AUDIO=1 electron .",
+    "test": "node test/engine-test.cjs && node test/unit-updater.mjs && node test/unit-streamer.cjs",
+    "test:electron": "xvfb-run -a node test/electron-smoke.cjs",
+    "dist:mac": "electron-builder --mac",
+    "manifest": "node scripts/make-update-manifest.mjs dist"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "node-gyp": "^11.0.0"
+  },
+  "optionalDependencies": {
+    "ffmpeg-static": "^5.2.0"
+  },
+  "build": {
+    "appId": "com.uniqueav.daw",
+    "productName": "Unique AV DAW",
+    "copyright": "Copyright © Unique AV",
+    "npmRebuild": false,
+    "files": [
+      "main.js",
+      "preload.js",
+      "main/**/*",
+      "src/**/*",
+      "package.json",
+      "build/Release/uavdaw.node",
+      "resources/icon.png"
+    ],
+    "asarUnpack": [
+      "build/Release/uavdaw.node",
+      "node_modules/ffmpeg-static/**"
+    ],
+    "mac": {
+      "category": "public.app-category.music",
+      "icon": "resources/icon.png",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "resources/entitlements.mac.plist",
+      "entitlementsInherit": "resources/entitlements.mac.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Unique AV DAW records and monitors your audio interface inputs (Core Audio, Dante, SoundGrid, USB and Thunderbolt devices).",
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "Unique AV DAW Session",
+            "CFBundleTypeExtensions": [
+              "uavdaw"
+            ],
+            "CFBundleTypeRole": "Editor"
+          }
+        ]
+      },
+      "artifactName": "Unique-AV-DAW-${version}-${arch}.${ext}"
+    },
+    "dmg": {
+      "title": "Unique AV DAW",
+      "artifactName": "Unique-AV-DAW-${version}-${arch}.${ext}"
+    },
+    "afterSign": "scripts/adhoc-sign.cjs",
+    "directories": {
+      "buildResources": "resources",
+      "output": "dist"
+    }
+  },
+  "updateUrl": "https://github.com/Jeansenekal-tech/Unique-Av-DAW-/releases/latest/download",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jeansenekal-tech/Unique-Av-DAW-.git"
+  }
+}

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; script-src 'self'">
+  <title>Unique AV DAW</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header id="topbar">
+    <div class="drag-strip"></div>
+    <div class="brand">
+      <div class="logo"><span>UNIQUE AV</span><b>DAW</b></div>
+      <div class="sess">
+        <div class="sess-label">SESSION</div>
+        <div id="sessName">No session</div>
+        <div id="sessSub">No audio device</div>
+      </div>
+    </div>
+    <div id="modes"></div>
+    <div id="transport" class="transport">
+      <button id="tStart" class="tbtn" title="Go to start (Home)">⏮</button>
+      <button id="tStop" class="tbtn" title="Stop">■</button>
+      <button id="tPlay" class="tbtn" title="Play / Stop (Space)">▶</button>
+      <button id="tLoop" class="tbtn" title="Loop (L)">⟳</button>
+      <button id="tRec" class="tbtn rec" title="Record (R)"><i></i>REC</button>
+      <div class="clock">
+        <div id="clock">00:00:00</div>
+        <div id="clockState">READY</div>
+      </div>
+    </div>
+    <div id="srcSwitch" class="src-switch"></div>
+    <div class="top-right">
+      <div id="cpu" class="cpu" title="Audio engine load">DSP 0%</div>
+      <button id="updateBadge" class="badge hidden">Update ready</button>
+      <button id="btnSetup" class="iconbtn" title="Audio Setup (⌘,)">⚙</button>
+    </div>
+  </header>
+  <main id="main">
+    <section id="view-live" class="view"></section>
+    <section id="view-mixer" class="view"></section>
+    <section id="view-broadcast" class="view"></section>
+    <section id="welcome" class="view"></section>
+  </main>
+  <footer id="status"></footer>
+  <div id="progress" class="hidden"><div class="p-label"></div><div class="p-bar"><i></i></div><button class="p-cancel">Cancel</button></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

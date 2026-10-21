@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/Release/
+build/Debug/
+build/Makefile
+build/*.mk
+build/config.gypi
+build/binding.Makefile
+build/gyp-mac-tool
+build/*.xcodeproj
+build/node_gyp_bins/
+build/uavdaw.target.mk
+.DS_Store
+*.log
+test/output/
