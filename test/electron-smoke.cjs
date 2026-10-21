@@ -153,6 +153,11 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await win.waitForFunction((n) => window.app.s && window.app.s.tracks.length === n, nTracks);
   console.log('ok - session saved and reopened');
 
+  // macOS sends 'activate' at launch and on Dock clicks: it must not open a second window.
+  const windows = await app.evaluate(({ app: a, BrowserWindow }) => { a.emit('activate'); return BrowserWindow.getAllWindows().length; });
+  assert.strictEqual(windows, 1, 'activate does not open a second window');
+  console.log('ok - single window on activate');
+
   const real = errors.filter((e) => !/Autofill|DevTools/.test(e));
   assert.deepStrictEqual(real, [], `no renderer errors: ${real.join('\n')}`);
   await app.evaluate(({ BrowserWindow }) => { const w = BrowserWindow.getAllWindows()[0]; w.forceClose = true; w.close(); });

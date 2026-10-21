@@ -639,6 +639,7 @@ const menu = {
     app.renderAll();
   },
   mode: (m) => app.s && app.setMode(m),
+  micDenied: () => toast('Microphone access is off, so inputs will be silent. Turn on Unique AV DAW in System Settings → Privacy & Security → Microphone, then restart the app.', 'error'),
   zoom: (d) => app.views.live.zoom(d),
   requestClose: async () => {
     if (app.rec) {

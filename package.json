@@ -1,7 +1,7 @@
 {
   "name": "unique-av-daw",
   "productName": "Unique AV DAW",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Unique AV DAW – live multitrack recorder with virtual soundcheck, mixer and broadcast output for macOS (Core Audio, Dante, Waves SoundGrid/QRec, MADI, USB).",
   "main": "main.js",
   "author": "Unique AV",

@@ -13,6 +13,7 @@ const NULL_AUDIO = process.env.UAVDAW_NULL_AUDIO === '1';
 const SESSION_EXT = 'uavdaw';
 
 let win = null;
+let pendingOpen = null; // a session double-clicked in Finder before the window exists
 let blocker = null;
 const settingsFile = path.join(app.getPath('userData'), 'settings.json');
 
@@ -229,7 +230,7 @@ function buildMenu() {
 // ------------------------------------------------------------------ window
 
 function createWindow() {
-  win = new BrowserWindow({
+  const w = new BrowserWindow({
     width: 1600,
     height: 980,
     minWidth: 1100,
@@ -243,13 +244,21 @@ function createWindow() {
       sandbox: false,
     },
   });
-  win.loadFile(path.join(__dirname, 'src', 'index.html'));
-  win.on('close', (e) => {
-    if (win.forceClose) return;
+  win = w;
+  w.loadFile(path.join(__dirname, 'src', 'index.html'));
+  // Use this window's own reference: the global may already point elsewhere.
+  w.on('close', (e) => {
+    if (w.forceClose || quitting) return;
     e.preventDefault();
-    send('menu', { cmd: 'requestClose' });
+    if (!w.webContents.isDestroyed()) w.webContents.send('menu', { cmd: 'requestClose' });
   });
-  win.on('closed', () => { win = null; });
+  w.on('closed', () => { if (win === w) win = null; });
+  w.webContents.once('did-finish-load', () => {
+    if (!pendingOpen) return;
+    const file = pendingOpen;
+    pendingOpen = null;
+    setTimeout(() => send('menu', { cmd: 'openSession', arg: file }), 1500);
+  });
 }
 
 function registerIpc() {
@@ -434,21 +443,37 @@ function registerIpc() {
   });
 }
 
+let ready = false;
+let quitting = false;
+
 app.whenReady().then(async () => {
-  if (process.platform === 'darwin' && !NULL_AUDIO) {
-    // Core Audio capture needs microphone permission (covers Dante, SoundGrid etc.).
-    try { await systemPreferences.askForMediaAccess('microphone'); } catch { /* not fatal */ }
-  }
   registerIpc();
   buildMenu();
   createWindow();
+  ready = true;
   const s = readSettings();
   updater.configure(s.updates || {});
+  if (process.platform === 'darwin' && !NULL_AUDIO) {
+    // Core Audio capture needs microphone permission (covers Dante, SoundGrid etc.).
+    try {
+      const granted = await systemPreferences.askForMediaAccess('microphone');
+      if (!granted) send('menu', { cmd: 'micDenied' });
+    } catch { /* not fatal */ }
+  }
 });
 
-app.on('window-all-closed', () => app.quit());
-app.on('activate', () => { if (!win) createWindow(); });
-app.on('before-quit', () => {
+app.on('window-all-closed', () => {
+  quitting = true;
+  app.quit();
+});
+// macOS sends 'activate' at launch too; only reopen once the app is set up
+// and every window is gone.
+app.on('activate', () => {
+  if (ready && !win && BrowserWindow.getAllWindows().length === 0) createWindow();
+});
+// Shut the engine down only once the quit can no longer be cancelled.
+app.on('will-quit', () => {
+  quitting = true;
   streamer.stopAll();
   try { engine.recordStop(); } catch { /* ignore */ }
   try { engine.close(); } catch { /* ignore */ }
@@ -457,4 +482,5 @@ app.on('before-quit', () => {
 app.on('open-file', (e, file) => {
   e.preventDefault();
   if (win) send('menu', { cmd: 'openSession', arg: file });
+  else pendingOpen = file;
 });
